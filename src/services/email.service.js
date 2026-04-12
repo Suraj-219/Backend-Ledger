@@ -40,7 +40,7 @@ const sendEmail = async (to, subject, text, html) => {
   }
 };
 
-
+// Function to send email user
 async function sendRegistrationEmail(userEmail, name) {
   const subject = 'Welcome to Backend Ledger!';
   const text = `Hello ${name},\n\nThank you for registering with Backend Ledger. We're excited to have you on board!\n\nBest regards,\nThe Backend Ledger Team`;
