@@ -2,6 +2,7 @@ const transactionModel = require("../models/transaction.model")
 const ledgerModel = require("../models/ledger.model")
 const accountModel= require("../models/account.model")
 const emailService = require("../services/email.service")
+const mongoose = require("mongoose")
 
 
 /**
@@ -99,5 +100,19 @@ async function createTransaction(req, res) {
             message: `Insufficient balance. Current balance is ${balance}. Requested amount is ${amount}`
         })
     }
+
+    /**
+     * 5. Create transaction (PENDING)
+     */
+    const session = await mongoose.startSession()
+    session.startTransaction()
+
+    const transaction = await transactionModel.create({
+        fromAccount,
+        toAccount,
+        amount,
+        idempotencyKey,
+        status: "PENDING"
+    }, { session })
 
 }
