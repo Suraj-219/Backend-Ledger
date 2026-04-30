@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model")
 const jwt = require("jsonwebtoken")
 const emailService = require("../services/email.service")
+const accountModel = require("../models/account.model")
 
 
 /** 
@@ -10,7 +11,7 @@ const emailService = require("../services/email.service")
 
 async function userRegisterController(req, res) {
     try {
-        const { email, password, name } = req.body
+        const { email, password, name, systemUser } = req.body   // 👈 add this
 
         const isExists = await userModel.findOne({ email })
 
@@ -21,8 +22,21 @@ async function userRegisterController(req, res) {
             })
         }
 
-        const user = await userModel.create({ email, password, name })
+        // ✅ Create user
+        const user = await userModel.create({
+            email,
+            password,
+            name,
+            systemUser: systemUser || false   // 👈 important
+        })
 
+        // ✅ CREATE ACCOUNT (FIX 🔥)
+        await accountModel.create({
+            user: user._id,
+            systemUser: user.systemUser
+        })
+
+        // ✅ Generate token
         const token = jwt.sign(
             { userId: user._id },
             process.env.JWT_SECRET,
@@ -35,7 +49,8 @@ async function userRegisterController(req, res) {
             user: {
                 _id: user._id,
                 email: user.email,
-                name: user.name
+                name: user.name,
+                systemUser: user.systemUser
             },
             token
         })

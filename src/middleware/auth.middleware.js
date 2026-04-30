@@ -31,9 +31,9 @@ async function authMiddleware( req, res, next ) {
     }
 }
 
-async function authSystemUserMiddleware( req, res, next ) {
+async function authSystemUserMiddleware(req, res, next) {
 
-    const token = req.cookies.token || req.headers.authorization?.split(" ") [ 1 ]
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1]
 
     if (!token) {
         return res.status(401).json({
@@ -44,8 +44,21 @@ async function authSystemUserMiddleware( req, res, next ) {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-        const user = await userModel.findById(decoded.userId).select("+systemUser")
-        if(!user.systemUser) {
+        const user = await userModel
+            .findById(decoded.userId)
+            .select("+systemUser")
+
+        // ✅ NEW: check if user exists
+        if (!user) {
+            return res.status(401).json({
+                message: "User not found"
+            })
+        }
+
+        // ✅ DEBUG (add once)
+        console.log("System user check:", user.systemUser)
+
+        if (!user.systemUser) {
             return res.status(403).json({
                 message: "Forbidden access, not a system user"
             })
@@ -53,13 +66,12 @@ async function authSystemUserMiddleware( req, res, next ) {
 
         req.user = user
         return next()
-    }
-    catch(err) {
+
+    } catch (err) {
         return res.status(401).json({
             message: "Unauthorized access, token is invalid"
         })
     }
-
 }
 
 module.exports = {
