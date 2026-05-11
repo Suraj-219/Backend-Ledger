@@ -173,7 +173,7 @@ async function createInitialFundsTransaction (req, res) {
     }
 
     const fromUserAccount = await accountModel.findOne({
-        systemUser: true,
+        // systemUser: true,
         user: req.user._id
     })
 
@@ -193,6 +193,7 @@ async function createInitialFundsTransaction (req, res) {
         idempotencyKey,
         status: "PENDING"
     })
+    await transaction.save({ session })
 
     const debitLedgerEntry = await ledgerModel.create([ {
         account: fromUserAccount._id,

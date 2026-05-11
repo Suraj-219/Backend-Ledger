@@ -22,9 +22,9 @@ const transactionSchema = new mongoose.Schema({
         },
         default: "PENDING"
     },
-    ammount: {
+    amount: {
         type: Number,
-        required: [ true, "Ammount is required for creating a transaction" ],
+        required: [ true, "Amount is required for creating a transaction" ],
         min: [ 0, "Transaction amount cannot be negative" ]
     },
     idempotencyKey: {
