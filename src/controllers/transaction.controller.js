@@ -79,6 +79,11 @@ async function createTransaction(req, res) {
                 message: "Transaction was reversed, please retry"
             })
         }
+        if (isTransactionAlreadyExists) {
+            return res.status(400).json({
+            message: "Transaction already exists"
+            })
+        }
     }
 
     /**
@@ -107,7 +112,7 @@ async function createTransaction(req, res) {
     const session = await mongoose.startSession()
     session.startTransaction()
 
-    const transaction = await transactionModel.create({
+    const transaction = new transactionModel({
         fromAccount,
         toAccount,
         amount,
